@@ -45,6 +45,14 @@ const isAdmin = ( req, res, next )=>{
     }
 }
 
+const isFieldValid = (req, res, next)=>{
+    if(req.params.field === 'category' || req.params.fiels === 'isDone'){
+        next()
+    }else{
+        res.status(400).json()
+    }
+}
+
 module.exports = {
     generateToken,
     isAuth,

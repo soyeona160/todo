@@ -11,10 +11,20 @@ const todoSchema = new Schema({
         required: true, // 필수. 없으면 에러 띄운다.
         ref: 'User' // 데이터 모델
     },
+    category:{
+        type: String,
+        required: true,
+        trim: true
+    },
     title:{
         type: String,
         required: true,
         trim: true// 문자열 양쪽 공백 제거
+    },
+    imgUrl: {
+        type: String,
+        required: true,
+        trim: true
     },
     description: {
         type: String,

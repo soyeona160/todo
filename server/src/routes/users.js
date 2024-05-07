@@ -52,9 +52,9 @@ router.post('/logout', (req, res, next) => {
   res.json("로그아웃")
 })
 
-router.put('/:id', isAuth, expressAsyncHandler( async(req, res, next) => {
+router.put('/', isAuth, expressAsyncHandler( async(req, res, next) => {
   // res.json("사용자정보 변경") 권한검사 필요
-  const user = await User.findById(req.params.id) // 회원인지 검사
+  const user = await User.findById(req.user._id) // 회원인지 검사
   if(!user){
     res.status(404).json({code: 400, message: "User Not Found"})
   }else{
@@ -72,10 +72,10 @@ router.put('/:id', isAuth, expressAsyncHandler( async(req, res, next) => {
   }
 
 }))
-router.delete('/:id', isAuth, expressAsyncHandler( async(req, res, next) => {
+router.delete('/', isAuth, expressAsyncHandler( async(req, res, next) => {
   // res.json("사용자정보 삭제")
 
-  const user = await User.findByIdAndDelete(req.params.id) // user.id로 바꾸게됨
+  const user = await User.findByIdAndDelete(req.user._id) // user.id로 바꾸게됨
   // 찾고 지우기
   if(!user){
     res.status(404).json({code: 404, message:" User not Found "})
