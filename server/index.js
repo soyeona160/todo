@@ -11,7 +11,7 @@ const {asyncFunction, wrap} = require('./async')
 
 
 const corsOptions = {
-    origin : 'http://127.0.0.1:3000', // 해당 url 주소만 요청
+    origin : 'http://127.0.0.1:5500', // 해당 url 주소만 요청
     credentials: true // 사용자 인증이 필요한 리소스 요청
 }
 

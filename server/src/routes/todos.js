@@ -96,10 +96,11 @@ router.get('/group/:field', isAuth, expressAsyncHandler(async (req, res, next) =
           _id: `$${req.params.field}`,
           count: {$sum: 1}
         }
-      }
+      },
+      { $sort : {_id: 1}}
     ])
     console.log(`Number Of Group : ${docs.length}`)
-    docs.sort((d1,d2)=>di._id - d2._id)
+    // docs.sort((d1,d2)=>d1._id - d2._id)
     res.json({code: 200, docs})
   }
 }))
@@ -114,11 +115,12 @@ router.get('/group/mine/:field', isAuth, expressAsyncHandler(async (req, res, ne
         _id: `$${req.params.field}`,
         count: { $sum: 1 }
       }
-    }
+    },
+    { $sort : {_id: 1}}
   ])
   
   console.log(`Number Of Group: ${docs.length}`) // 그룹 갯수
-  docs.sort((d1, d2) => d1._id - d2._id)
+  // docs.sort((d1, d2) => d1._id - d2._id)
   res.json({ code: 200, docs})
 }))
 
@@ -134,11 +136,12 @@ router.get('/group/date/:field', isAuth, expressAsyncHandler(async(req,res,next)
             $group: {
               _id: { year: {$year: `$${req.params.field}`}, month: {$month: `$${req.params.field}`}},
               count: {$sum: 1}
-            }
-          }
+            } 
+          },
+          { $sort : {_id: 1}}
         ])
         console.log(`Number Of Group: ${docs.length}`) // 그룹 갯수
-        docs.sort((d1, d2) => d1._id - d2._id)
+        // docs.sort((d1, d2) => d1._id - d2._id)
         res.json({ code: 200, docs})
       }else{
         res.status(400).json({code: 400, message: 'wrong field'})
@@ -159,10 +162,10 @@ router.get('/group/mine/date/:field', isAuth, expressAsyncHandler(async(req,res,
          _id: { year: {$year: `$${req.params.field}`}, month: {$month: `$${req.params.field}`}},
          count: {$sum: 1}
       }
-    }
+    },{ $sort : {_id: 1}}
   ])
    console.log(`Number Of Group: ${docs.length}`) // 그룹 갯수
-   docs.sort((d1, d2) => d1._id - d2._id)
+  //  docs.sort((d1, d2) => d1._id - d2._id)
    res.json({ code: 200, docs})
  }else{
    res.status(400).json({code: 400, message: 'wrong field'})
