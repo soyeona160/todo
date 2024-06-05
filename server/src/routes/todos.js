@@ -5,6 +5,8 @@ const Todo = require('../models/Todo')
 const expressAsyncHandler = require('express-async-handler')
 const { isAuth } = require('../../auth')
 const router = express.Router()
+const {validateTodoTitle, validateTodoDescription, validateTodoCategory} = require('../../validator')
+const { validationResult, oneOf } = require('express-validator')
 
 router.get('/', isAuth, expressAsyncHandler(async(req, res, next) => {
   // res.json("전체 할일목록 조회")
@@ -12,7 +14,14 @@ router.get('/', isAuth, expressAsyncHandler(async(req, res, next) => {
   if(todos.length===0){
     return res.status(404).json({code: 404, message: "Failed to find todos!"})
   }else{
-    res.json({code:200, todos})
+    res.json({code:200, todos:todos.map(todo=>{
+      return {
+        ...todo._doc,
+        createdAgo : todo.createdAgo, // virtual 필드 조회
+        lastModifiedAgo : todo.lastModifiedAgo,
+        finishedAgo : todo.finishedAgo
+      }
+    })})
   }
 }))
 
@@ -29,33 +38,42 @@ router.get('/:id',isAuth, expressAsyncHandler(async  (req, res, next) => {
   }
 
 }))
-router.post('/', isAuth, expressAsyncHandler(async (req, res, next) => {
+router.post('/', 
+  [validateTodoTitle(), validateTodoDescription(), validateTodoCategory()],isAuth, expressAsyncHandler(async (req, res, next) => {
   // res.json("새로운 할일 생성")/
-
-  const searchedTodo = await Todo.findOne({
-    author: req.user._id, //isAuth에서 전달된 값
-    title: req.body.title
-  })
-  if(searchedTodo){
-    res.status(204).json({code: 204, message: "Todo you want to create already exists in DB"})
-  }else{
-    const todo = new Todo({
-      author: req.user._id,
-      title:req.body.title,
-      description:req.body.description,
-      category: req.body.category,
-      imgUrl: req.body.imgUrl
-    })
-
-    const newTodo = await todo.save()// DB 저장
-    if(!newTodo){
-      res.status(401).json({code:401, message: "Failed to save todo"})
+    const errors = validationResult(req)
+    if(!errors.isEmpty()){
+      console.log(errors.array())
+      res.status(400).json({
+        code: 400, message : 'Invalid Form for todo',
+        error: errors.array()
+      })
     }else{
-      res.status(201).json({code: 201, message:"new Todo Created", newTodo // 팝업ㅇ창에 띄우는용 
-    }) // 201: created(생성됨)
-
+      const searchedTodo = await Todo.findOne({
+        author: req.user._id, //isAuth에서 전달된 값
+        title: req.body.title
+      })
+      if(searchedTodo){
+        res.status(204).json({code: 204, message: "Todo you want to create already exists in DB"})
+      }else{
+        const todo = new Todo({
+          author: req.user._id,
+          title:req.body.title,
+          description:req.body.description,
+          category: req.body.category,
+          imgUrl: req.body.imgUrl
+        })
+    
+        const newTodo = await todo.save()// DB 저장
+        if(!newTodo){
+          res.status(401).json({code:401, message: "Failed to save todo"})
+        }else{
+          res.status(201).json({code: 201, message:"new Todo Created", newTodo // 팝업ㅇ창에 띄우는용 
+        }) // 201: created(생성됨)
+    
+        }
+      }
     }
-  }
 }))
 
 router.put('/:id', isAuth, expressAsyncHandler(async (req, res, next) => {

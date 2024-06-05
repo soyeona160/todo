@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const { Schema } = mongoose
-
+const moment = require('moment')
 const { Types: {ObjectId} } = Schema
 //ObjectId : MongoDB ID값의 자료형(data type)
 //mongoose.Schema.ObjectId //24자리 고유 아이디값 자동 생성을 나타내는 데이터타입
@@ -48,6 +48,26 @@ const todoSchema = new Schema({
     }
 })
 
+todoSchema.path('category').validate(function(value){
+    return /게임|공부|밥먹기|자기계발|업무|쇼핑|여행/.test(value)
+}, 'category `{VALUE}`는 유효하지 않음')
+
+todoSchema.virtual('status').get(function(){
+    return this.isDone ? '종료' : '진행중'
+})
+
+todoSchema.virtual('createdAgo').get(function(){
+    return moment(this.createdAt).fromNow()
+})
+
+todoSchema.virtual('lastModifiedAgo').get(function(){
+    return moment(this.lastModifiedAt).fromNow()
+})
+
+todoSchema.virtual('finishedAgo').get(function(){
+    return moment(this.finishedAt).fromNow()
+})
+
 const Todo = mongoose.model('Todo', todoSchema)
 module.exports = Todo
 
@@ -60,3 +80,4 @@ module.exports = Todo
 // todo.save().then(()=> console.log('todo created'))
 
 // 비동기 주의점 async await 사용할 때 try catch 문 안에 넣어서 에러 처리 해야함
+
